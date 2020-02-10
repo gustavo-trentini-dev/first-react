@@ -1,7 +1,7 @@
 # first-react
 This is my first project with react.
 
-It's a simples tool to list Git Hub's repos and it's issues;
+It's a simple tool to list Git Hub's repos and it's issues;
 
 # Install
 
