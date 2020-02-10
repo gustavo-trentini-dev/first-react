@@ -4,14 +4,15 @@ import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
-import { Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List, Input } from './styles';
 import Container from '../../components/Container';
 
 export default class Main extends Component {
   state = {
     newRepo: '',
     repositories: [],
-    loading: false
+    loading: false,
+    error: false
   };
 
   // Load local storage data
@@ -33,31 +34,37 @@ export default class Main extends Component {
   }
 
   handleInputChange = e => {
-    this.setState({ newRepo: e.target.value });
+    this.setState({ error: false, newRepo: e.target.value });
   };
 
   handleSubmit = async e => {
-    e.preventDefault();
+    try{
+      e.preventDefault();
 
-    this.setState({ loading: true });
+      this.setState({ loading: true });
 
-    const { newRepo, repositories } = this.state;
+      const { newRepo, repositories } = this.state;
 
-    const response = await api.get(`/repos/${newRepo}`);
+      const response = await api.get(`/repos/${newRepo}`);
 
-    const data = {
-      name: response.data.full_name
-    };
+      const data = {
+        name: response.data.full_name
+      };
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false
-    });
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+        loading: false
+      });
+    }catch(err){
+      console.log('deu erro');
+      this.setState({error: true, loading: false});
+    }
+    
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, error } = this.state;
     return (
       <Container>
         <h1>
@@ -66,12 +73,7 @@ export default class Main extends Component {
         </h1>
 
         <Form onSubmit={this.handleSubmit}>
-          <input
-            type="text"
-            placeholder="Adicionar repositório"
-            value={newRepo}
-            onChange={this.handleInputChange}
-          />
+          <Input onChange={this.handleInputChange} value={newRepo} error={error}></Input>
           <SubmitButton disable loading={loading}>
             {loading ? (
               <FaSpinner color="#FFF" size={14} />
