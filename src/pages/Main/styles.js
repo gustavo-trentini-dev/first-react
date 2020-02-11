@@ -9,7 +9,7 @@ export const Form = styled.form`
 const rotate = keyframes`
   from {
     transform: rotate(0deg);
-  } to{
+  } to {
     transform: rotate(360deg);
   }
 `;
@@ -64,19 +64,19 @@ export const List = styled.ul`
 `;
 
 export const Input = styled.input.attrs(props => ({
-  type: "text",
-  placeholder: "Adicionar repositório",
-  error: props.error,
+  type: 'text',
+  placeholder: 'Adicionar repositório',
+  error: props.error
 }))`
-    flex: 1;
-    border: 1px solid;
-    padding: 10px 15px;
-    border-radius: 4px;
-    font-size: 16px;
+  flex: 1;
+  border: 1px solid;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 16px;
 
   ${props =>
     props.error &&
     css`
-    border: 2px solid red;
-  `}
+      border: 2px solid red;
+    `}
 `;

@@ -42,11 +42,42 @@ export const Owner = styled.header`
   }
 `;
 
+export const Pages = styled.div.attrs(props => ({
+  disabled: props.disabled
+}))`
+  display: flex;
+  align-items: center;
+
+  button {
+    margin: 5px;
+    padding: 5px;
+    border-radius: 2px;
+    background: #7159c1;
+    color: #fff;
+
+    &[disabled] {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+`;
+
 export const IssueList = styled.ul`
   padding-top: 30px;
   margin-top: 30px;
   border-top: 1px solid #eee;
   list-style: none;
+
+  select {
+    height: 20px;
+    margin-bottom: 10px;
+    background: #eee;
+    color: #333;
+  }
+
+  span {
+    color: #333;
+  }
 
   li {
     display: flex;

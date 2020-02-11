@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import api from '../../services/api';
 
-import { Loading, Owner, IssueList } from './styles';
+import { Loading, Owner, IssueList, Pages } from './styles';
 import Container from '../../components/Container';
 
 export default class Repository extends Component {
@@ -18,20 +18,24 @@ export default class Repository extends Component {
   state = {
     repository: {},
     issues: [],
-    loading: true
+    loading: true,
+    filter: 'all',
+    page: 1
   };
 
   async componentDidMount() {
     const { match } = this.props;
+    const { filter, page } = this.state;
 
     const repoName = decodeURIComponent(match.params.repository);
 
     const [repository, issues] = await Promise.all([
       api.get(`repos/${repoName}`),
-      api.get(`repos/${repoName}/issues`, {
+      api.get(`repos/${repoName}/issues?${filter}`, {
         params: {
-          state: 'open',
-          per_page: 5
+          state: filter,
+          per_page: 5,
+          page
         }
       })
     ]);
@@ -43,8 +47,43 @@ export default class Repository extends Component {
     });
   }
 
+  handleSelect = async e => {
+    this.setState({
+      filter: e.target.value
+    });
+
+    this.reloadIssues();
+  };
+
+  reloadIssues = async () => {
+    const { match } = this.props;
+    const repoName = decodeURIComponent(match.params.repository);
+    const { filter, page } = this.state;
+
+    const issues = await api.get(`repos/${repoName}/issues`, {
+      params: {
+        state: filter,
+        per_page: 5,
+        page
+      }
+    });
+
+    this.setState({
+      issues: issues.data
+    });
+  };
+
+  changePage = async action => {
+    const { page } = this.state;
+
+    await this.setState({
+      page: action === 'back' ? page - 1 : page + 1
+    });
+    this.reloadIssues();
+  };
+
   render() {
-    const { repository, issues, loading } = this.state;
+    const { repository, issues, loading, page } = this.state;
 
     if (loading) {
       return <Loading>Carregando</Loading>;
@@ -59,6 +98,14 @@ export default class Repository extends Component {
           <p>{repository.description}</p>
         </Owner>
         <IssueList>
+          <div>
+            <span>Issue State: </span>
+            <select onChange={this.handleSelect}>
+              <option value="all">All</option>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
           {issues.map(issue => (
             <li key={String(issue.id)}>
               <img src={issue.user.avatar_url} alt={issue.user.login} />
@@ -74,6 +121,19 @@ export default class Repository extends Component {
             </li>
           ))}
         </IssueList>
+        <Pages>
+          <button
+            type="button"
+            disabled={page < 2}
+            onClick={() => this.changePage('back')}
+          >
+            Back
+          </button>
+          <span>Página {page}</span>
+          <button type="button" onClick={() => this.changePage('next')}>
+            Next
+          </button>
+        </Pages>
       </Container>
     );
   }
